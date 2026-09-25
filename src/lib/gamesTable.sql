@@ -21,7 +21,9 @@ FROM
     JOIN players p ON gp.player_id = p.id
 ORDER BY
     rg.game_time DESC,
-    gp.placement ASC;
+    rg.id DESC,
+    gp.placement ASC,
+    gp.player_id ASC;
 
 -- BLOCK select_all_games
 SELECT
@@ -35,4 +37,6 @@ FROM
     JOIN players p ON gp.player_id = p.id
 ORDER BY
     g.game_time DESC,
-    gp.placement ASC;
+    g.id DESC,
+    gp.placement ASC,
+    gp.player_id ASC;

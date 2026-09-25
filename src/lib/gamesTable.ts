@@ -86,7 +86,7 @@ export async function getAllGames(): Promise<GameInfo[]> {
   return combineGameInfo(games);
 }
 
-function combineGameInfo(games: GameInformation[]): GameInfo[] {
+export function combineGameInfo(games: GameInformation[]): GameInfo[] {
   const info: GameInfo[] = [];
   let curr_game_info = { game_id: -1, game_date: "", is_team_game: false };
   let curr_game_players: (ExtendedGamePlayer | null)[] = [];

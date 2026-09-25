@@ -135,5 +135,6 @@ export function HeadContents(title: string) {
     <script src="/bootstrap-table/bootstrap-table.min.js"></script>
     <link rel="stylesheet" href="/bootstrap-table/bootstrap-table.min.css" />
     <script src="/bootstrap-table/extensions/filter-control/bootstrap-table-filter-control.min.js"></script>
+    <link rel="stylesheet" href="/assets/brand.css" />
   `.toString();
 }

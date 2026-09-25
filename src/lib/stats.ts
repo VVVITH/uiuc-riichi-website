@@ -1,3 +1,4 @@
+import { rankNames } from "./rankRules.js";
 import { queryRow, queryRows } from "./sqlDatabase.js";
 import { loadSqlEquiv } from "./sqlLoader.js";
 import {
@@ -43,29 +44,12 @@ export async function getSemesterIndividualStats(
     length_placement++;
   }
 
-  const rankingText = [
-    "5级",
-    "4级",
-    "3级",
-    "2级",
-    "1级",
-    "初段",
-    "二段",
-    "三段",
-    "四段",
-    "五段",
-    "六段",
-    "七段",
-    "八段",
-    "九段",
-    "十段",
-  ];
   return {
     id: player.id,
     name: player.player_name,
     placements,
     average_placement: sum_placement / length_placement,
-    ranking: rankingText[player_data.ranking],
+    ranking: rankNames[player_data.ranking],
     points: player_data.points,
   };
 }
