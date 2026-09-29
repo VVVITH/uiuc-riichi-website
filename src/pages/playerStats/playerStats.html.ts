@@ -3,10 +3,9 @@ import { PageLayout } from "../../components/pageLayout.html.js";
 import { SeasonStats } from "../../lib/playerProfile.js";
 import { playerSearch } from "../../components/playerSearch.html.js";
 import { playerCard } from "../../components/playerCard.html.js";
-import {RatingState} from "../../lib/rating.js";
 import {RankingSort} from "../../lib/playerRankings.js";
 
-export function playerStats({ allStats, term, sort, positions, hasMore, ratings, resLocals }: { allStats: SeasonStats[]; term: string; sort: RankingSort; positions: Map<string, number | null>; hasMore: boolean; ratings: Map<string, RatingState>; resLocals: Record<string, any> }) {
+export function playerStats({ allStats, term, sort, positions, hasMore, resLocals }: { allStats: SeasonStats[]; term: string; sort: RankingSort; positions: Map<string, number>; hasMore: boolean; resLocals: Record<string, any> }) {
   const basePath = `/semester/${resLocals.semester}/players`;
   const searchQuery = term ? `q=${encodeURIComponent(term)}` : "";
   const ptHref = `${basePath}${searchQuery ? `?${searchQuery}` : ""}`;
@@ -21,7 +20,7 @@ export function playerStats({ allStats, term, sort, positions, hasMore, ratings,
         <a class="${sort === "pt" ? "is-active" : ""}" aria-current="${sort === "pt" ? "page" : "false"}" href="${ptHref}">Season PT</a>
         <a class="${sort === "rate" ? "is-active" : ""}" aria-current="${sort === "rate" ? "page" : "false"}" href="${rateHref}">All-time Rate</a>
       </nav></div>
-      <div class="player-cards">${allStats.map(stats => playerCard({ id: stats.id, player_name: stats.name }, stats, resLocals.semester, ratings.get(stats.id), positions.get(stats.id)))}</div>
+      <div class="player-cards">${allStats.map(stats => playerCard(stats, resLocals.semester, positions.get(stats.id)))}</div>
       ${allStats.length ? "" : html`<p>${term ? "No matching players in this semester." : "No games have been added for this semester."}</p>`}
       ${hasMore ? html`<p>Showing the first 50 matches. Refine your search to find more.</p>` : ""}
     </div>` });

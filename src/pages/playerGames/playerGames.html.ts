@@ -3,20 +3,17 @@ import { PageLayout } from "../../components/pageLayout.html.js";
 import { playerLink } from "../../components/playerLink.html.js";
 import { PlayerProfile } from "../../lib/playerProfile.js";
 import { rankNames } from "../../lib/rankRules.js";
-import { getPlayerPointChange } from "../../lib/gamesTable.js";
+import { getPlayerPointChange, getPlayerRateChange } from "../../lib/gamesTable.js";
 
 const decimal = (n: number | null | undefined, places = 2) => n == null ? "—" : n.toFixed(places);
 const score = (n: number | null | undefined) => n == null ? "—" : n.toLocaleString("en-US", { maximumFractionDigits: 1 });
+const signedRate = (n: number | null) => n === null ? "—" :
+  `${n >= 0.005 ? "+" : ""}${Math.abs(n) < 0.005 ? "0.00" : n.toFixed(2)}`;
 const signedIndex = (n: number) => { const rounded = Math.round(Math.abs(n)); return rounded ? `${n > 0 ? "+" : "−"}${rounded}` : "0"; };
 
 export function playerGames({ profile: p, resLocals }: { profile: PlayerProfile; resLocals: Record<string, any> }) {
   const semester = resLocals.semester;
   const id = String(p.player.id);
-  const profilePath = `/semester/${semester}/player/${id}`;
-  const pageQuery = p.page > 1 ? `page=${p.page}` : "";
-  const allTimeHref = `${profilePath}${pageQuery ? `?${pageQuery}` : ""}#opponents-heading`;
-  const semesterHref = `${profilePath}?h2h=semester${pageQuery ? `&${pageQuery}` : ""}#opponents-heading`;
-  const historyScopeQuery = p.opponentsScope === "semester" ? "&h2h=semester" : "";
   const s = p.stats;
   const r = p.promotion;
   const rank = Number(p.player.rank_index);
@@ -74,14 +71,10 @@ export function playerGames({ profile: p, resLocals }: { profile: PlayerProfile;
         ` : ""}
       </section>
       <section class="profile-panel" aria-labelledby="opponents-heading">
-        <div class="h2h-header"><h2 id="opponents-heading">Head-to-head</h2>
-          <nav class="h2h-switch" aria-label="Head-to-head period">
-            <a class="${p.opponentsScope === "all" ? "is-active" : ""}" href="${allTimeHref}" aria-current="${p.opponentsScope === "all" ? "page" : "false"}">All time</a>
-            <a class="${p.opponentsScope === "semester" ? "is-active" : ""}" href="${semesterHref}" aria-current="${p.opponentsScope === "semester" ? "page" : "false"}">${semester}</a>
-          </nav></div>
-        <p class="compact-note">${p.opponentsScope === "all" ? "All recorded semesters" : `${semester} only`} · sorted by rivalry index</p>
+        <h2 id="opponents-heading">Head-to-head</h2>
+        <p class="compact-note">All recorded semesters · sorted by rivalry index</p>
         <details class="stat-definitions"><summary>How to read these stats</summary>
-          <dl><dt>Rivalry index</dt><dd>Shared games in the selected period. Each game's PT gap is softened, then the average is steadied by ten neutral games. Positive: this opponent tends to lead you; negative: you tend to lead them.</dd>
+          <dl><dt>Rivalry index</dt><dd>Shared games across all recorded semesters. Each game's PT gap is softened, then the average is steadied by ten neutral games. Positive: this opponent tends to lead you; negative: you tend to lead them.</dd>
           <dt>PT difference</dt><dd>The raw sum of your opponent's PT minus your PT in shared games, including placement bonuses.</dd>
           <dt>Your win rate</dt><dd>The percentage of games you played together where your placement was better than your opponent's.</dd>
           <dt>Avg. placement · shared games</dt><dd>Your and your opponent's average placements, using only games you played together.</dd>
@@ -98,35 +91,35 @@ export function playerGames({ profile: p, resLocals }: { profile: PlayerProfile;
             <td>${decimal(o.my_average)}</td><td>${decimal(o.opponent_average)}</td></tr>`)}</tbody>
         </table></div><nav class="module-pagination h2h-pagination" id="h2h-pagination" aria-label="Head-to-head pages" data-page="1" data-pages="${Math.ceil(p.opponents.length / 10)}" hidden>
           <span class="pagination-count">${p.opponents.length} opponents</span><div class="pagination-controls"></div>
-        </nav>` : html`<p>No shared individual games in ${p.opponentsScope === "all" ? "the recorded history" : semester}.</p>`}
+        </nav>` : html`<p>No shared individual games in the recorded history.</p>`}
       </section>
       <section class="profile-panel" aria-labelledby="history-heading">
         <div class="section-title"><h2 id="history-heading" tabindex="-1">Match history</h2></div>
         <p class="compact-note">Newest first · tap a name to view their profile</p>
         <p class="history-load-status" id="history-load-status" role="status" aria-live="polite"></p>
-        ${playerHistoryContent({ games: p.games, page: p.page, pages: p.pages, count: s?.games ?? 0, id, semester, historyScopeQuery })}
+        ${playerHistoryContent({ games: p.games, page: p.page, pages: p.pages, count: s?.games ?? 0, id, semester })}
       </section>
     </div>` });
 }
 
-export function playerHistoryContent({ games, page, pages, count, id, semester, historyScopeQuery }:
-  { games: PlayerProfile["games"]; page: number; pages: number; count: number; id: string; semester: string; historyScopeQuery: string }) {
+export function playerHistoryContent({ games, page, pages, count, id, semester }:
+  { games: PlayerProfile["games"]; page: number; pages: number; count: number; id: string; semester: string }) {
   return html`<div id="match-history-content">
     ${games.length ? html`<div class="table-responsive match-table-wrap"><table class="table table-hover match-table" aria-label="Match history">
-          <colgroup><col class="match-date-col" /><col class="match-players-col" /><col class="match-pt-col" /></colgroup>
-          <thead><tr><th scope="col">Date</th><th scope="col">Players & final scores</th><th scope="col">Your PT</th></tr></thead>
+          <colgroup><col class="match-date-col" /><col class="match-players-col" /><col class="match-pt-col" /><col class="match-rate-col" /></colgroup>
+          <thead><tr><th scope="col">Date</th><th scope="col">Players & final scores</th><th scope="col">Your PT</th><th scope="col">Your Rate</th></tr></thead>
           <tbody>${games.map(game => html`<tr><td>${game.game_date}</td><td><div class="match-players">${[game.player_1, game.player_2, game.player_3, game.player_4].filter(x => x !== null).map(x => html`
             <div class="match-player ${String(x.player_id) === id ? "is-you" : ""}"><span class="placement-label">#${x.placement}</span>
               <span title="${x.player_name}">${playerLink(String(x.player_id), x.player_name, semester)}<small class="d-block">${score(Number(x.score))}</small></span></div>`)}</div></td>
-            <td class="pt-value">${getPlayerPointChange(game, id) > 0 ? "+" : ""}${decimal(getPlayerPointChange(game, id), 1)}</td></tr>`)}
-            ${Array.from({ length: Math.max(0, 10 - games.length) }, (_, index) => html`<tr class="match-empty-row" aria-hidden="true"><td colspan="3">${index === 0 ? "End of records" : ""}</td></tr>`)}</tbody>
+            <td class="pt-value">${getPlayerPointChange(game, id) > 0 ? "+" : ""}${decimal(getPlayerPointChange(game, id), 1)}</td><td class="pt-value">${signedRate(getPlayerRateChange(game, id))}</td></tr>`)}
+            ${Array.from({ length: Math.max(0, 10 - games.length) }, (_, index) => html`<tr class="match-empty-row" aria-hidden="true"><td colspan="4">${index === 0 ? "End of records" : ""}</td></tr>`)}</tbody>
         </table></div>
-        <nav class="module-pagination history-pagination" aria-label="Match history pages" data-page="${page}" data-pages="${pages}" data-h2h-scope="${historyScopeQuery ? "semester" : "all"}">
+        <nav class="module-pagination history-pagination" aria-label="Match history pages" data-page="${page}" data-pages="${pages}">
           <span class="pagination-count">${count} games</span>
           <div class="pagination-controls">
-            ${page > 1 ? html`<a href="?page=${page - 1}${historyScopeQuery}#history-heading">← Previous</a>` : html`<span></span>`}
+            ${page > 1 ? html`<a href="?page=${page - 1}#history-heading">← Previous</a>` : html`<span></span>`}
             <span>Page ${page} of ${pages}</span>
-            ${page < pages ? html`<a href="?page=${page + 1}${historyScopeQuery}#history-heading">Next →</a>` : html`<span></span>`}
+            ${page < pages ? html`<a href="?page=${page + 1}#history-heading">Next →</a>` : html`<span></span>`}
           </div>
         </nav>` : html`<p>No matches yet.</p>`}
   </div>`;

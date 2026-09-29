@@ -14,14 +14,6 @@ body:has(.player-profile) .navbar { margin-bottom:.65rem !important; }
 .metric strong { font-size:1.35rem; font-variant-numeric:tabular-nums; color:var(--club-navy); line-height:1.2; }
 .profile-panel { background:white; border:1px solid #dde3ec; border-radius:.6rem; padding:1rem; margin-bottom:.75rem; }
 .profile-panel h2 { font-size:1.1rem; font-weight:700; margin:0 0 .25rem; }
-.h2h-header { display:flex; align-items:center; justify-content:space-between; gap:.5rem; flex-wrap:wrap; margin-bottom:.35rem; }
-.h2h-header h2 { margin:0; }
-.h2h-switch { display:inline-flex; border:1px solid #cbd5e1; border-radius:.3rem; overflow:hidden; font-size:.75rem; font-weight:650; }
-.h2h-switch a { display:block; padding:.3rem .65rem; color:var(--club-navy); text-decoration:none; white-space:nowrap; }
-.h2h-switch a + a { border-left:1px solid #cbd5e1; }
-.h2h-switch a.is-active { background:var(--club-navy); color:white; }
-.h2h-switch a:not(.is-active):hover { background:#edf2f8; }
-.h2h-switch a:focus-visible { outline:2px solid var(--club-orange); outline-offset:-2px; }
 .profile-panel h3 { font-size:.8rem; margin:0; }
 .compact-note { font-size:.73rem; color:#637084; margin:0 0 .5rem; }
 .section-title { display:flex; align-items:baseline; justify-content:space-between; gap:.5rem; }
@@ -53,16 +45,15 @@ summary { cursor:pointer; color:#174c8e; font-size:.8rem; padding:.15rem 0; }
 .opponent-average-col { width:12%; }
 .opponent-table th,.opponent-table td { padding:.4rem .6rem; vertical-align:middle; }
 .opponent-table thead th { font-size:.72rem; color:#526079; white-space:nowrap; }
-.opponent-table thead small { font-weight:normal; }
 .opponent-table tbody tr { height:38px; }
 .opponent-table tbody th { overflow:hidden; }
 .opponent-table tbody th .player-link { display:block; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
 #opponent-rows tr[hidden] { display:none; }
 .rivalry-value { font-weight:650; }
 .match-table-wrap { min-height:665px; }
-.match-table { min-width:980px; width:100%; table-layout:fixed; font-size:.8rem; margin-bottom:.25rem; }
+.match-table { min-width:1072px; width:100%; table-layout:fixed; font-size:.8rem; margin-bottom:.25rem; }
 .match-date-col { width:112px; }
-.match-pt-col { width:92px; }
+.match-pt-col, .match-rate-col { width:92px; }
 .match-table thead tr { height:38px; }
 .match-table tbody tr { height:61px; }
 .match-table td { height:61px; vertical-align:middle; padding:.35rem .45rem; overflow:hidden; }

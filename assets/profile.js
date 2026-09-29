@@ -29,7 +29,6 @@
     const countWidth = nav.querySelector(".pagination-count")?.getBoundingClientRect().width ?? 0;
     const available = window.matchMedia("(max-width: 650px)").matches
       ? nav.clientWidth : Math.max(0, nav.clientWidth - countWidth - 12);
-    const scope = nav.dataset.h2hScope === "semester" ? "&h2h=semester" : "";
     const target = kind === "history" ? "history-heading" : "opponents-heading";
     const control = (number, label, arrow = false) => {
       const valid = number >= 1 && number <= pages;
@@ -39,7 +38,7 @@
       item.setAttribute("aria-label", arrow ? `${number < page ? "Previous" : "Next"} page` : `Page ${number}`);
       if (valid) {
         item.dataset.page = String(number);
-        if (kind === "history") item.href = `?page=${number}${scope}#${target}`;
+        if (kind === "history") item.href = `?page=${number}#${target}`;
         else item.type = "button";
       } else {
         item.type = "button";

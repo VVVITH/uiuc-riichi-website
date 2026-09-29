@@ -14,7 +14,7 @@ a { color:var(--club-navy); text-underline-offset:2px; }
 .profile-header .eyebrow { color:var(--club-orange); }
 .profile-header h1 { font-style:italic; font-weight:850; }
 .eyebrow { color:var(--club-navy); }
-.rank-badge { border:1.5px solid var(--club-orange); background:transparent; padding:.45rem .75rem; border-radius:3px; transform:none; text-align:center; }
+.rank-badge { border:1.5px solid var(--club-orange); background:transparent; padding:.45rem .75rem; border-radius:3px; text-align:center; }
 .rank-badge span { color:#bfc9d9; }
 .rank-badge strong { color:white; font-weight:800; }
 .profile-panel,.profile-metrics { border-radius:.2rem; border:0; box-shadow:0 2px 0 #d9dce0; }
@@ -38,7 +38,6 @@ body:has(.player-directory) .navbar { margin-bottom:.65rem !important; }
 .card-rank-rate small { color:#526079; font-size:.72rem; white-space:nowrap; font-variant-numeric:tabular-nums; }
 .profile-rate { margin:.2rem 0 0; color:#d5deec; font-size:.75rem; font-variant-numeric:tabular-nums; }
 .profile-rate strong { color:white; font-size:1rem; }
-.card-empty { font-size:.7rem; white-space:nowrap; color:#526079; }
 .player-card-body { display:flex; gap:.7rem; align-items:center; margin-top:.4rem; }
 .player-card-details { flex:1; min-width:0; max-width:460px; }
 .player-card-stats { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); margin:0 0 .4rem; gap:.4rem; }

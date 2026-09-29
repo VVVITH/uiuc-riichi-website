@@ -7,9 +7,8 @@ import {
 import { queryRows, withGameTransaction } from "../sqlDatabase.js";
 import { loadSqlEquiv } from "../sqlLoader.js";
 import { Semester } from "../db-types.js";
-import { insertGameResults, processGameResults } from "../gameResults.js";
+import { insertGameResults, processGameResults, GameValidationError, validateGameEntries } from "../gameResults.js";
 import { addPlayer, playerExists } from "../addPlayer.js";
-import { GameValidationError, validateGameEntries } from "../gameValidation.js";
 
 const sql = loadSqlEquiv(import.meta.url);
 

@@ -9,3 +9,8 @@ INSERT INTO
     semesters (semester)
 VALUES
     (:semester);
+
+-- BLOCK activate_semester
+UPDATE semesters
+SET
+    active = (semester = :semester);

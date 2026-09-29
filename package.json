@@ -13,10 +13,9 @@
     },
     "scripts": {
         "build": "tsc && npm run postbundle",
-        "dev": "nodemon --watch src --ext ts,sql --exec 'npm run build && node app.js'",
+        "dev": "nodemon dist/server.js",
         "start": "node app.js",
-        "db:migrate:derived": "npm run build && node scripts/migrate-derived-stats.mjs",
-        "db:repair:derived": "npm run build && node scripts/repair-derived-stats.mjs",
+        "db:migrate:rate": "npm run build && node scripts/migrate-rate.mjs",
         "postbundle": "copyfiles -u 1 'src/**/*.sql' dist/"
     },
     "dependencies": {

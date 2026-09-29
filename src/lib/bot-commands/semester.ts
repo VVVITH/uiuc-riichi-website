@@ -7,7 +7,6 @@ import {
 import { queryRows, queryWrite } from "../sqlDatabase.js";
 import { loadSqlEquiv } from "../sqlLoader.js";
 import { Semester } from "../db-types.js";
-import { activateSemester } from "../derivedStats.js";
 
 const sql = loadSqlEquiv(import.meta.url);
 
@@ -74,12 +73,7 @@ export async function execute(interaction: ChatInputCommandInteraction) {
         flags: MessageFlags.Ephemeral,
       });
     }
-    try {
-      await activateSemester(name);
-    } catch (error) {
-      return interaction.reply({ content: error instanceof Error ? error.message : "Unable to activate semester.",
-        flags: MessageFlags.Ephemeral });
-    }
+    await queryWrite(sql.activate_semester, { semester: name });
     return interaction.reply({
       content: `Semester ${name} activated!`,
       flags: MessageFlags.Ephemeral,

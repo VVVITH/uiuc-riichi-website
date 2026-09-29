@@ -36,6 +36,7 @@ export type GamePlayer = {
   score: number;
   placement: number;
   point_change: number;
+  rate_change: number | null;
 };
 
 export type Semester = { semester: string; active: boolean };

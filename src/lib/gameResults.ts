@@ -8,11 +8,42 @@ import {
   PlayerSemesterData,
 } from "./db-types.js";
 import { queryRow, queryRows, queryWrite, withGameTransaction } from "./sqlDatabase.js";
-import { parseHundreds, validateGameEntries, GameValidationError } from "./gameValidation.js";
 import { loadSqlEquiv } from "./sqlLoader.js";
-import { recordDerivedGame, removeDerivedGame, rebuildActiveRatings } from "./derivedStats.js";
+import { recordGameRating, removeGameRating } from "./ratingStore.js";
 
 const sql = loadSqlEquiv(import.meta.url);
+
+export class GameValidationError extends Error {}
+
+export function parseHundreds(value: unknown): number {
+  if (typeof value !== "string" || !/^-?\d+$/.test(value.trim())) {
+    throw new GameValidationError("Scores must be whole numbers of 100 points.");
+  }
+  const score = Number(value) * 100;
+  if (!Number.isSafeInteger(score)) {
+    throw new GameValidationError("Score is outside the supported range.");
+  }
+  return score;
+}
+
+export function validateGameEntries(entries: { player_id: string; score: number }[]): void {
+  if (entries.length !== 4 || entries.some(({ player_id }) =>
+    typeof player_id !== "string" || !/^[1-9]\d*$/.test(player_id) ||
+    BigInt(player_id) > 18446744073709551615n)) {
+    throw new GameValidationError("You must select 4 valid players.");
+  }
+  if (new Set(entries.map(({ player_id }) => player_id)).size !== 4) {
+    throw new GameValidationError("You must select 4 distinct players.");
+  }
+  if (entries.some(({ score }) => !Number.isSafeInteger(score) || score % 100 !== 0)) {
+    throw new GameValidationError("Scores must be whole multiples of 100 points.");
+  }
+  // BigInt keeps even unusually large, but valid, integer inputs exact.
+  const total = entries.reduce((sum, { score }) => sum + BigInt(score), 0n);
+  if (total !== 100000n) {
+    throw new GameValidationError(`Total score does not add up to 100000. Current total score: ${total}`);
+  }
+}
 
 export type GameResult = {
   player_id: string;
@@ -164,13 +195,18 @@ export async function processGameResults(
       point_change: 0,
     },
   ];
-  results.sort((a, b) => b.score - a.score);
+  results.sort((a, b) => {
+    if (a.score - b.score > 1e-6) {
+      return -1;
+    } else if (a.score - b.score < 1e-6) {
+      return 1;
+    } else {
+      return 0;
+    }
+  });
 
   const placementPointsMatching = [50, 10, -10, -30];
   const players = await queryRows<Player>(sql.select_players);
-  if (results.some((result) => !players.some((player) => player.id === result.player_id))) {
-    throw new GameValidationError("One or more selected players no longer exist.");
-  }
 
   // Updates information for game results
   // Considers tie games for placement points
@@ -217,7 +253,7 @@ async function removeGameResultsInTransaction(game_id: number): Promise<void> {
     return;
   }
   const { semester, is_team_game } = games[0];
-  const rebuildRate = await removeDerivedGame(game_id);
+  await removeGameRating(games);
 
   for (const game of games) {
     if (!is_team_game) {
@@ -260,7 +296,6 @@ async function removeGameResultsInTransaction(game_id: number): Promise<void> {
     });
   }
   await queryWrite(sql.remove_game, { game_id });
-  if (rebuildRate) await rebuildActiveRatings();
 }
 
 export async function insertGameResults(
@@ -331,5 +366,5 @@ async function insertGameResultsInTransaction(
       });
     }
   }
-  await recordDerivedGame(inserted_game.insertId);
+  await recordGameRating(inserted_game.insertId, results);
 }

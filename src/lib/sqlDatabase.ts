@@ -43,7 +43,6 @@ export async function connectToDatabase(): Promise<Connection> {
     ...databaseOptions,
     supportBigNumbers: true,
     bigNumberStrings: true,
-    namedPlaceholders: true,
   });
 
   return connection;
@@ -114,10 +113,6 @@ export async function withGameTransaction<T>(work: () => Promise<T>): Promise<T>
     if (reusable) connection.release();
     else connection.destroy();
   }
-}
-
-export async function closeDatabase(): Promise<void> {
-  await pool.end();
 }
 
 type queryParams = Record<string, any>;

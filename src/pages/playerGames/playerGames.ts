@@ -14,7 +14,7 @@ router.get("/history", asyncHandler(async (req, res) => {
     typeof req.query.page === "string" ? Number(req.query.page) : 1);
   if (!history) { res.status(404).send(error({ resLocals: res.locals })); return; }
   res.type("html").send(playerHistoryContent({ ...history, id: String(res.locals.player_id),
-    semester: res.locals.semester, historyScopeQuery: req.query.h2h === "semester" ? "&h2h=semester" : "" }).toString());
+    semester: res.locals.semester }).toString());
 }));
 router.get("/", asyncHandler(async (req, res) => {
   if (!res.locals.semesters.includes(res.locals.semester)) {
@@ -22,8 +22,7 @@ router.get("/", asyncHandler(async (req, res) => {
     return;
   }
   const profile = await getPlayerProfile(res.locals.player_id, res.locals.semester,
-    typeof req.query.page === "string" ? Number(req.query.page) : 1,
-    req.query.h2h === "semester" ? "semester" : "all");
+    typeof req.query.page === "string" ? Number(req.query.page) : 1);
   if (!profile) { res.status(404).send(error({ resLocals: res.locals })); return; }
   res.send(playerGames({ profile, resLocals: res.locals }));
 }));
